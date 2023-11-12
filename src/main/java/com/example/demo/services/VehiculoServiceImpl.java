@@ -71,29 +71,33 @@ public class VehiculoServiceImpl implements VehiculoService {
         vehiculosFechasAdecuadas.stream().filter(x -> {
             Calendar calendarAux = Calendar.getInstance();
             calendarAux.setTime(x.getFechaCompra());
-            return x.getFechaCompra().getDay() == fechaConsulta.getDay() || x.getFechaCompra().getDay() == validarLibreDiaAnterior(x.getFechaCompra()).getDay() == fechaConsulta.getDay();
+            return x.getFechaCompra().getDay() == fechaConsulta.getDay() || validarManteniemiento(fechaConsulta, x.getFechaCompra());
         });
         return null;
     }
 
-
-    public Boolean validarLibreDiaAnterior(Date fechaConsulta) {
+    public boolean validarManteniemiento(Date fechaConsulta, Date fechaCompra) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(fechaConsulta);
-        calendar.add(Calendar.DATE, -1);
-        return calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || FuncionesUtiles.esFeriado(calendar.getTime());
+        calendar.add(Calendar.DAY_OF_WEEK, -1);
+        fechaConsulta = calcularDiaLaborable(calendar);
+        return fechaCompra.compareTo(fechaConsulta) > 0;
     }
 
-    public Date fechaFiltro(Date fechaConsulta) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(fechaConsulta);
-        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || FuncionesUtiles.esFeriado(calendar.getTime())) {
-            calendar.add(Calendar.DAY_OF_WEEK, 1);
-        } else if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-            calendar.add(Calendar.DAY_OF_WEEK, 2);
+    public static Date calcularDiaLaborable(Calendar fechaLaborable){
+        switch (fechaLaborable.get(Calendar.DAY_OF_WEEK)){
+            case Calendar.SATURDAY:
+                fechaLaborable.add(Calendar.DATE, -1);
+                break;
+            case  Calendar.SUNDAY:
+                fechaLaborable.add(Calendar.DATE, -2);
+                break;
         }
-        return  calendar.getTime();
+        if (FuncionesUtiles.esFeriado(fechaLaborable.getTime())){
+            fechaLaborable.add(Calendar.DATE, -1);
+            calcularDiaLaborable(fechaLaborable);
+        }
+        return fechaLaborable.getTime();
     }
-
 
 }
