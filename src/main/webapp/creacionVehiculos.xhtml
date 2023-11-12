@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+            xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Crear Vehículo</title>
+</h:head>
+<h:body>
+    <h:form>
+        <h1>Crear Vehículo</h1>
+        <h:outputText value="Placa: "  />
+        <p:inputText id="txtPlaca" value="#{vehiculoBean.placa}"
+                     styleClass="input-text">
+            <p:ajax update="@this" process="@this"/>
+        </p:inputText>
+        <h:outputText value="Modelo: "  />
+        <p:inputText id="txtModelo" value="#{vehiculoBean.modelo}"
+                     styleClass="input-text">
+            <p:ajax update="@this" process="@this"/>
+        </p:inputText>
+        <h:outputText value="Año: "  />
+        <p:inputText id="txtAnio" value="#{vehiculoBean.anio}"
+                     styleClass="input-text">
+            <p:ajax update="@this" process="@this"/>
+        </p:inputText>
+        <h:outputText value="Fecha Compra: "  />
+        <p:calendar pattern="dd/MM/yyyy" showOn="button" navigator="true" value="#{vehiculoBean.fechaCompra}">
+            <p:ajax update="@this" process="@this" event="dateSelect"/>
+            <p:ajax update="@this" process="@this" event="change"/>
+        </p:calendar>
+        <h:outputText value="Observaciones: "  />
+        <p:inputTextarea id="txtObservaciones" value="#{vehiculoBean.observaciones}"
+                         styleClass="input-text">
+            <p:ajax update="@this" process="@this"/>
+        </p:inputTextarea>
+        <p:commandButton title="Guardar" process="@this"
+                         value="Guardar" action="#{vehiculoBean.guardar()}">
+        </p:commandButton>
+    </h:form>
+</h:body>
+</html>
