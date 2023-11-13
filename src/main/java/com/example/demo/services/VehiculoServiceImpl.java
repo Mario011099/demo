@@ -17,8 +17,10 @@ import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -59,21 +61,18 @@ public class VehiculoServiceImpl implements VehiculoService {
 
     @Override
     public List<Vehiculo> obtenerVehiculosMantenimiento(Date fechaConsulta) {
-        if (FuncionesUtiles.esFeriado(fechaConsulta)) {
-            return null;
-        }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(fechaConsulta);
-        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-            return null;
+        if (FuncionesUtiles.esFeriado(fechaConsulta) || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            return Collections.emptyList();
         }
         List<Vehiculo> vehiculosFechasAdecuadas = vehiculoDao.obtenerVehiculosMantenimiento(fechaConsulta);
-        vehiculosFechasAdecuadas.stream().filter(x -> {
+        return vehiculosFechasAdecuadas.stream().filter(x -> {
             Calendar calendarAux = Calendar.getInstance();
             calendarAux.setTime(x.getFechaCompra());
             return x.getFechaCompra().getDay() == fechaConsulta.getDay() || validarManteniemiento(fechaConsulta, x.getFechaCompra());
-        });
-        return null;
+        }).collect(Collectors.toList());
+
     }
 
     private Boolean validarManteniemiento(Date fechaConsulta, Date fechaCompra) {
