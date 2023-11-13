@@ -76,28 +76,41 @@ public class VehiculoServiceImpl implements VehiculoService {
         return null;
     }
 
-    public boolean validarManteniemiento(Date fechaConsulta, Date fechaCompra) {
+    private Boolean validarManteniemiento(Date fechaConsulta, Date fechaCompra) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(fechaConsulta);
         calendar.add(Calendar.DAY_OF_WEEK, -1);
-        fechaConsulta = calcularDiaLaborable(calendar);
-        return fechaCompra.compareTo(fechaConsulta) > 0;
+        Date fechaUltimoLaborable = calcularUltimoDiaLaborable(calendar);
+        return entre(fechaUltimoLaborable, fechaConsulta, fechaCompra.getDay());
     }
 
-    public static Date calcularDiaLaborable(Calendar fechaLaborable){
-        switch (fechaLaborable.get(Calendar.DAY_OF_WEEK)){
+    public static Date calcularUltimoDiaLaborable(Calendar fechaLaborable) {
+        switch (fechaLaborable.get(Calendar.DAY_OF_WEEK)) {
             case Calendar.SATURDAY:
                 fechaLaborable.add(Calendar.DATE, -1);
                 break;
-            case  Calendar.SUNDAY:
+            case Calendar.SUNDAY:
                 fechaLaborable.add(Calendar.DATE, -2);
                 break;
         }
-        if (FuncionesUtiles.esFeriado(fechaLaborable.getTime())){
+        if (FuncionesUtiles.esFeriado(fechaLaborable.getTime())) {
             fechaLaborable.add(Calendar.DATE, -1);
-            calcularDiaLaborable(fechaLaborable);
+            calcularUltimoDiaLaborable(fechaLaborable);
         }
         return fechaLaborable.getTime();
+    }
+
+    private boolean entre(Date fechaUltimoLaborable, Date fechaConsulta, int diaCompra) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(fechaUltimoLaborable);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        while (calendar.getTime().before(fechaConsulta)) {
+            if (calendar.getTime().getDay() == diaCompra) {
+                return true;
+            }
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        return false;
     }
 
 }
